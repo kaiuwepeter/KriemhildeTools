@@ -180,8 +180,8 @@ function KT:CreateMainFrame()
     -- Menu items (using locale keys)
     local menuItems = {
         {key = "Start", display = LK["Start"]},
-        {key = "punkt1", display = LK["punkt1"]},
-        {key = "punkt2", display = LK["punkt2"]},
+        {key = "QoL", display = LK["QoL"]},
+        {key = "Farmbar", display = LK["Farmbar"]},
         {key = "punkt3", display = LK["punkt3"]},
         {key = "punkt4", display = LK["punkt4"]},
         {key = "punkt5", display = LK["punkt5"]},
