@@ -6,7 +6,7 @@
 ## LoadSavedVariablesFirst: 1
 ## SavedVariables: KriemhildeToolsDB
 ## Group: KriemhildeTools
-## Version: 1.0
+## Version: @project-version@
 ## X-License: ARR
 ## OptionalDeps: Ace3
 ## X-Curse-Project-ID: 1402113
