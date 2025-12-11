@@ -176,12 +176,20 @@ function KT:CreateMainFrame()
     frame.content = content
     frame.selectedMenu = "Start"
     frame.menuButtons = {}
+    frame.expandedMenus = {} -- Track which parent menus are expanded
+    frame.navPanel = navPanel -- Store nav panel reference
 
-    -- Menu items (using locale keys)
-    local menuItems = {
+    -- Menu items (hierarchical structure with submenus)
+    frame.menuItems = {
         {key = "Start", display = LK["Start"]},
         {key = "QoL", display = LK["QoL"]},
-        {key = "Farmbar", display = LK["Farmbar"]},
+        {
+            key = "Farmbar",
+            display = LK["Farmbar"],
+            children = {
+                {key = "Farmbar_Konfiguration", display = LK["Konfiguration"], parent = "Farmbar"}
+            }
+        },
         {key = "punkt3", display = LK["punkt3"]},
         {key = "punkt4", display = LK["punkt4"]},
         {key = "punkt5", display = LK["punkt5"]},
@@ -189,19 +197,24 @@ function KT:CreateMainFrame()
     }
 
     -- Function to create menu button
-    local function CreateMenuButton(parent, menuKey, displayText, index)
+    local function CreateMenuButton(parent, menuKey, displayText, yOffset, indent, hasChildren, isChild)
         local btn = CreateFrame("Button", nil, parent)
-        btn:SetSize(130, 32)
-        btn:SetPoint("TOPLEFT", 5, -5 - ((index - 1) * 34))
+        -- Submenu buttons are smaller to not overlap the separator line
+        local btnWidth = isChild and 120 or 130
+        btn:SetSize(btnWidth, 32)
+        btn:SetPoint("TOPLEFT", 5 + (indent or 0), yOffset)
         btn.menuKey = menuKey
+        btn.hasChildren = hasChildren
+        btn.isExpanded = false
+        btn.isChild = isChild
 
-        -- Background
+        -- Background (only for child items, not for parent items with children)
         local bg = btn:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints()
         bg:SetColorTexture(0.08, 0.08, 0.12, 0)
         btn.bg = bg
 
-        -- Highlight (selected state)
+        -- Highlight (only show for items without children)
         local highlight = btn:CreateTexture(nil, "BORDER")
         highlight:SetAllPoints()
         highlight:SetColorTexture(0.25, 0.35, 0.55, 0)
@@ -210,9 +223,9 @@ function KT:CreateMainFrame()
         -- Text
         local btnText = btn:CreateFontString(nil, "OVERLAY")
         btnText:SetPoint("LEFT", 10, 0)
-        btnText:SetFont("Fonts\\FRIZQT__.TTF", 13)
+        btnText:SetFont("Fonts\\FRIZQT__.TTF", isChild and 12 or 13)
         btnText:SetText(displayText)
-        btnText:SetTextColor(0.8, 0.8, 0.85, 1)
+        btnText:SetTextColor(isChild and 0.7 or 0.8, isChild and 0.7 or 0.8, isChild and 0.75 or 0.85, 1)
         btnText:SetJustifyH("LEFT")
         btn.text = btnText
 
@@ -223,32 +236,76 @@ function KT:CreateMainFrame()
         accent:SetColorTexture(0.3, 0.6, 1, 0)
         btn.accent = accent
 
-        -- Hover effect
+        -- Hover effect (only for items without children or child items)
         btn:SetScript("OnEnter", function(self)
-            if frame.selectedMenu ~= menuKey then
+            -- No hover effect for parent items with children
+            if not hasChildren and frame.selectedMenu ~= menuKey then
                 self.bg:SetColorTexture(0.15, 0.15, 0.2, 0.5)
             end
         end)
 
         btn:SetScript("OnLeave", function(self)
-            if frame.selectedMenu ~= menuKey then
+            if not hasChildren and frame.selectedMenu ~= menuKey then
                 self.bg:SetColorTexture(0.08, 0.08, 0.12, 0)
             end
         end)
 
         -- Click handler
         btn:SetScript("OnClick", function(self)
-            KT:ShowMenuContent(menuKey)
+            if hasChildren then
+                -- Toggle expand/collapse
+                KT:ToggleMenuExpand(menuKey)
+            else
+                -- Show content
+                KT:ShowMenuContent(menuKey)
+            end
         end)
 
         return btn
     end
 
-    -- Create menu buttons
-    for i, menuItem in ipairs(menuItems) do
-        local btn = CreateMenuButton(navPanel, menuItem.key, menuItem.display, i)
-        frame.menuButtons[menuItem.key] = btn
+    -- Function to rebuild menu buttons (local function with access to parent scope)
+    local function RebuildMenuButtons()
+        -- Clear existing buttons
+        for _, btn in pairs(frame.menuButtons) do
+            btn:Hide()
+            btn:SetParent(nil)
+        end
+        frame.menuButtons = {}
+
+        local yOffset = -5
+        local buttonIndex = 0
+
+        -- Create buttons for all menu items and their children
+        for i, menuItem in ipairs(frame.menuItems) do
+            -- Create parent button
+            local btn = CreateMenuButton(navPanel, menuItem.key, menuItem.display, yOffset, 0, menuItem.children ~= nil, false)
+            frame.menuButtons[menuItem.key] = btn
+            yOffset = yOffset - 34
+            buttonIndex = buttonIndex + 1
+
+            -- If menu has children and is expanded, create child buttons
+            if menuItem.children and frame.expandedMenus[menuItem.key] then
+                btn.isExpanded = true
+
+                for j, child in ipairs(menuItem.children) do
+                    local childBtn = CreateMenuButton(navPanel, child.key, child.display, yOffset, 15, false, true)
+                    frame.menuButtons[child.key] = childBtn
+                    yOffset = yOffset - 34
+                    buttonIndex = buttonIndex + 1
+                end
+            end
+        end
+
+        -- Update selected state
+        KT:UpdateMenuSelection(frame.selectedMenu)
     end
+
+    -- Store function reference
+    frame.RebuildMenuButtons = RebuildMenuButtons
+
+    -- Initial menu build
+    RebuildMenuButtons()
 
     -- Show initial content
     self:ShowMenuContent("Start")
@@ -257,27 +314,50 @@ function KT:CreateMainFrame()
     self.mainFrame = frame
 end
 
--- Function to show content for selected menu
-function KT:ShowMenuContent(menuName)
+-- Toggle menu expand/collapse
+function KT:ToggleMenuExpand(menuKey)
     local frame = self.mainFrame
     if not frame then return end
 
-    -- Update menu button states
+    -- Toggle expanded state
+    frame.expandedMenus[menuKey] = not frame.expandedMenus[menuKey]
+
+    -- Rebuild menu to show/hide children
+    if frame.RebuildMenuButtons then
+        frame.RebuildMenuButtons()
+    end
+end
+
+-- Update menu selection visual state
+function KT:UpdateMenuSelection(menuName)
+    local frame = self.mainFrame
+    if not frame then return end
+
     for name, btn in pairs(frame.menuButtons) do
-        if name == menuName then
+        -- Only highlight items without children (leaf nodes)
+        if name == menuName and not btn.hasChildren then
             btn.bg:SetColorTexture(0.2, 0.25, 0.35, 1)
             btn.highlight:SetColorTexture(0.25, 0.35, 0.55, 0.3)
             btn.accent:SetColorTexture(0.3, 0.6, 1, 1)
             btn.text:SetTextColor(1, 1, 1, 1)
         else
+            -- Reset to default state
+            local isChild = btn.isChild or false
             btn.bg:SetColorTexture(0.08, 0.08, 0.12, 0)
             btn.highlight:SetColorTexture(0.25, 0.35, 0.55, 0)
             btn.accent:SetColorTexture(0.3, 0.6, 1, 0)
-            btn.text:SetTextColor(0.8, 0.8, 0.85, 1)
+            btn.text:SetTextColor(isChild and 0.7 or 0.8, isChild and 0.7 or 0.8, isChild and 0.75 or 0.85, 1)
         end
     end
+end
+
+-- Function to show content for selected menu
+function KT:ShowMenuContent(menuName)
+    local frame = self.mainFrame
+    if not frame then return end
 
     frame.selectedMenu = menuName
+    self:UpdateMenuSelection(menuName)
 
     -- Clear existing content
     if frame.contentFrame then
@@ -324,18 +404,32 @@ function KT:ShowMenuContent(menuName)
         infoText:SetText(LK["Weitere Funktionen Info"])
         infoText:SetTextColor(0.7, 0.8, 0.9, 1)
         infoText:SetJustifyH("CENTER")
-    else
-        -- Placeholder for other menu items
+    elseif menuName == "Farmbar_Konfiguration" then
+        -- Farmbar Configuration
         local title = contentFrame:CreateFontString(nil, "OVERLAY")
         title:SetPoint("TOP", 0, -20)
         title:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
-        title:SetText(LK[menuName])
+        title:SetText(LK["Farmbar"] .. " - " .. LK["Konfiguration"])
         title:SetTextColor(1, 1, 1, 1)
 
         local desc = contentFrame:CreateFontString(nil, "OVERLAY")
         desc:SetPoint("TOP", title, "BOTTOM", 0, -20)
         desc:SetFont("Fonts\\FRIZQT__.TTF", 12)
-        desc:SetText(LK["Inhalt für"] .. " " .. LK[menuName] .. " " .. LK["kommt bald"] .. "...")
+        desc:SetText(LK["Inhalt für"] .. " " .. LK["Farmbar"] .. " " .. LK["Konfiguration"] .. " " .. LK["kommt bald"] .. "...")
+        desc:SetTextColor(0.7, 0.7, 0.75, 1)
+    else
+        -- Placeholder for other menu items
+        local displayName = LK[menuName] or menuName
+        local title = contentFrame:CreateFontString(nil, "OVERLAY")
+        title:SetPoint("TOP", 0, -20)
+        title:SetFont("Fonts\\FRIZQT__.TTF", 16, "OUTLINE")
+        title:SetText(displayName)
+        title:SetTextColor(1, 1, 1, 1)
+
+        local desc = contentFrame:CreateFontString(nil, "OVERLAY")
+        desc:SetPoint("TOP", title, "BOTTOM", 0, -20)
+        desc:SetFont("Fonts\\FRIZQT__.TTF", 12)
+        desc:SetText(LK["Inhalt für"] .. " " .. displayName .. " " .. LK["kommt bald"] .. "...")
         desc:SetTextColor(0.7, 0.7, 0.75, 1)
     end
 
