@@ -5,4 +5,4 @@
 local LK = LibStub("AceLocale-3.0"):NewLocale("KriemhildeTools", "deDE", true)
 if not LK then return end
 
---@localization(locale="deDE", format="lua_additive_table", namespace="Konfiguration", table-name="LK", handle-unlocalized="ignore")@
+--@localization(locale="deDE", format="lua_additive_table", same-key-is-true=true, namespace="Konfiguration", table-name="LK", handle-unlocalized="ignore")@
