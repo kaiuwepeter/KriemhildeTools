@@ -30,3 +30,7 @@ Locales\KriemhildeTools-enUS.lua
 
 # Core
 KriemhildeToolsCore.lua
+
+# Modules
+Modules\TooltipIDs.lua
+Modules\QuestAnnouncer.lua
