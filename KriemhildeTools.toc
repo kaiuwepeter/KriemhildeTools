@@ -4,7 +4,7 @@
 ## Author: sidekix
 ## X-Email: kriemhildetools@sidekix.de
 ## LoadSavedVariablesFirst: 1
-## SavedVariables: KriemhildeToolsDB
+## SavedVariables: KriemhildeToolsDB, KriemhildeToolsFishingDB
 ## Group: KriemhildeTools
 ## Version: @project-version@
 ## X-License: ARR
@@ -34,3 +34,8 @@ KriemhildeToolsCore.lua
 # Modules
 Modules\TooltipIDs.lua
 Modules\QuestAnnouncer.lua
+Modules\Farmbar.lua
+Modules\FishingTracker.lua
+
+# Farmbar Item Database (muss nach Farmbar.lua geladen werden)
+KTFBItems.lua
