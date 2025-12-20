@@ -49,6 +49,12 @@ local CATEGORIES = {
 		color = {r = 0.8, g = 0.6, b = 0.4},
 	},
 	{
+		key = "tailoring",
+		name = LK["Stoffe"],
+		icon = "Interface\\Icons\\Trade_Tailoring",
+		color = {r = 0.9, g = 0.4, b = 0.9},
+	},
+	{
 		key = "knowledge",
 		name = LK["Berufswissen"],
 		icon = "Interface\\Icons\\inv_scroll_11",
@@ -93,6 +99,11 @@ local defaults = {
 				items = {},
 				position = {point = "BOTTOMLEFT", x = 690, y = 150},
 			},
+			tailoring = {
+				enabled = true,
+				items = {},
+				position = {point = "BOTTOMLEFT", x = 180, y = 80},
+			},
 			knowledge = {
 				enabled = true,
 				items = {},
@@ -109,6 +120,30 @@ function Farmbar:OnInitialize()
 		KT.db.profile.farmbar = defaults.profile
 	end
 	db = KT.db.profile.farmbar
+
+	-- Migration: Fehlende Kategorien automatisch hinzufügen
+	-- Durchlaufe alle definierten Kategorien und stelle sicher, dass sie in der DB existieren
+	for _, category in ipairs(CATEGORIES) do
+		if not db.categories[category.key] then
+			-- Hole defaults aus der defaults-Tabelle oder verwende Fallback
+			local defaultCat = defaults.profile.categories[category.key]
+			if defaultCat then
+				db.categories[category.key] = {
+					enabled = defaultCat.enabled,
+					items = {},
+					position = defaultCat.position,
+				}
+			else
+				-- Fallback wenn keine defaults definiert sind
+				db.categories[category.key] = {
+					enabled = true,
+					items = {},
+					position = {point = "BOTTOMLEFT", x = 10, y = 150},
+				}
+			end
+			KT:Print(string.format("Farmbar: Kategorie '%s' wurde zur Datenbank hinzugefügt.", category.name))
+		end
+	end
 
 	-- Slash Commands
 	KT:RegisterChatCommand("farmbar", function(input) Farmbar:SlashCommand(input) end)

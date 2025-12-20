@@ -911,6 +911,7 @@ function KT:CreateFarmbarConfig(contentFrame)
 		{key = "fishing", name = LK["Fische"], icon = "Interface\\Icons\\Trade_Fishing"},
 		{key = "logging", name = LK["Holz"], icon = "Interface\\Icons\\ui_resourcelumberwarwithin"},
 		{key = "skinning", name = LK["Leder"], icon = "Interface\\Icons\\Trade_LeatherWorking"},
+		{key = "tailoring", name = LK["Stoffe"], icon = "Interface\\Icons\\Trade_Tailoring"},
 		{key = "knowledge", name = LK["Berufswissen"], icon = "Interface\\Icons\\inv_scroll_11"},
 	}
 

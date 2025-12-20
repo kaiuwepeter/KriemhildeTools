@@ -325,12 +325,36 @@ Farmbar.ItemDatabase = {
 		-- Midnight (MN)
 		{id = 238511, name = "Leerengehärtetes Leder", expansion = "MN", quality = 1},
 		{id = 238512, name = "Leerengehärtetes Leder", expansion = "MN", quality = 2},
-		{id = 238513, name = "Leerengegärtete Schuppen", expansion = "MN", quality = 1},
-		{id = 238514, name = "Leerengegärtete Schuppen", expansion = "MN", quality = 2},
+		{id = 238513, name = "Leerengehärtete Schuppen", expansion = "MN", quality = 1},
+		{id = 238514, name = "Leerengehärtete Schuppen", expansion = "MN", quality = 2},
 		{id = 238520, name = "Leerengehärtete Panzerung", expansion = "MN", quality = 1},
 		{id = 238521, name = "Leerengehärtete Panzerung", expansion = "MN", quality = 2},
-		{id = 238518, name = "Leerengegärtetr Balg", expansion = "MN", quality = 1}, -- EN: Void-Tempered Hide
-		{id = 238519, name = "Leerengegärtetr Balg", expansion = "MN", quality = 2}, -- EN: Void-Tempered Hide
+		{id = 238522, name = "Unvergleichliches Geflieder", expansion = "MN"},
+		{id = 238525, name = "Fantastisches Fell", expansion = "MN"},
+		{id = 238528, name = "Majestätische Klaue", expansion = "MN"},
+		{id = 238529, name = "Majestätisches Fell", expansion = "MN"},
+		{id = 238530, name = "Majestätische Flosse", expansion = "MN"},
+	},
+
+	-- ========================================
+	-- SCHNEIDEREI / TAILORING
+	-- ========================================
+	tailoring = {
+		-- Midnight (MN)
+		{id = 236963, name = "Helles Leinen", expansion = "MN", quality = 1},
+		{id = 236965, name = "Helles Leinen", expansion = "MN", quality = 2},
+		{id = 237015, name = "Sonnenfeuerseide", expansion = "MN", quality = 1},
+		{id = 237016, name = "Sonnenfeuerseide", expansion = "MN", quality = 2},
+		{id = 237017, name = "Arkanostoff", expansion = "MN", quality = 2},
+		{id = 237018, name = "Arkanostoff", expansion = "MN", quality = 1},
+		{id = 239198, name = "Arkanostoffballen", expansion = "MN", quality = 1},
+		{id = 239200, name = "Arkanostoffballen", expansion = "MN", quality = 2},
+		{id = 239201, name = "Sonnenfeuerseidenballen", expansion = "MN", quality = 1},
+		{id = 239202, name = "Sonnenfeuerseidenballen", expansion = "MN", quality = 2},
+		{id = 239700, name = "Ballen aus Hellem Leder", expansion = "MN", quality = 1},
+		{id = 239701, name = "Ballen aus Hellem Leder", expansion = "MN", quality = 2},
+		{id = 239702, name = "Machtgetränkter Ballen aus hellem Leder", expansion = "MN", quality = 1},
+		{id = 239703, name = "Machtgetränkter Ballen aus hellem Leder", expansion = "MN", quality = 2},
 	},
 
 	-- ========================================

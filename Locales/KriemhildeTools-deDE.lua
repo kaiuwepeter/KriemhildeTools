@@ -99,6 +99,7 @@ LK["Blumen"] = "Kräuter"
 LK["Fische"] = true
 LK["Holz"] = true
 LK["Leder"] = true
+LK["Stoffe"] = true
 LK["Berufswissen"] = true
 LK["Farmbar aktiviert"] = true
 LK["Farmbar deaktiviert"] = true
